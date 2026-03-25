@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TCD FAQ Accordion
  * Description: Elementor accordion widget for the FAQ custom post type. Full styling control, FAQPage schema output, zero dependencies. Built by The Creative Depot.
- * Version: 1.0.1
+ * Version: 1.1.0
  * Author: The Creative Depot
  * Author URI: https://thecreativedepot.com
  * License: GPL v2 or later
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TCD_FAQW_VERSION', '1.0.0' );
+define( 'TCD_FAQW_VERSION', '1.1.0' );
 define( 'TCD_FAQW_PATH', plugin_dir_path( __FILE__ ) );
 
 
@@ -77,7 +77,9 @@ function tcd_faqw_enqueue_styles() {
     transition: transform 0.3s ease;
 }
 .tcd-faq-icon svg { width: 100%; height: 100%; display: block; }
-.tcd-faq-item.is-open .tcd-faq-icon { transform: rotate(45deg); }
+.tcd-faq-item.is-open .tcd-faq-icon--rotate { transform: rotate(45deg); }
+.tcd-faq-item.is-open .tcd-faq-icon--flip { transform: rotate(180deg); }
+.tcd-faq-count { margin: 0 0 12px 0; padding: 0; font-size: 14px; color: #888; }
 .tcd-faq-answer {
     overflow: hidden;
     max-height: 0;
@@ -102,16 +104,18 @@ function tcd_faqw_enqueue_scripts() {
     wp_register_script( 'tcd-faq-accordion', false, array(), TCD_FAQW_VERSION, true );
     wp_add_inline_script( 'tcd-faq-accordion', '
 document.addEventListener("DOMContentLoaded", function() {
-    document.addEventListener("click", function(e) {
-        var btn = e.target.closest(".tcd-faq-question");
-        if (!btn) return;
-        var item = btn.closest(".tcd-faq-item");
-        var accordion = btn.closest(".tcd-faq-accordion");
+
+    function toggleItem(accordion, item, btn, forceOpen) {
         var answer = item.querySelector(".tcd-faq-answer");
         var inner = item.querySelector(".tcd-faq-answer-inner");
         var isOpen = item.classList.contains("is-open");
         var collapseOthers = accordion && accordion.dataset.collapse === "yes";
-        if (collapseOthers) {
+        var smoothScroll = accordion && accordion.dataset.smoothScroll === "yes";
+
+        if (typeof forceOpen === "undefined") forceOpen = !isOpen;
+        if (forceOpen === isOpen) return;
+
+        if (forceOpen && collapseOthers) {
             var openItems = accordion.querySelectorAll(".tcd-faq-item.is-open");
             for (var i = 0; i < openItems.length; i++) {
                 if (openItems[i] !== item) {
@@ -121,16 +125,63 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         }
-        if (isOpen) {
-            item.classList.remove("is-open");
-            btn.setAttribute("aria-expanded", "false");
-            answer.style.maxHeight = "0";
-        } else {
+
+        if (forceOpen) {
             item.classList.add("is-open");
             btn.setAttribute("aria-expanded", "true");
             answer.style.maxHeight = inner.scrollHeight + "px";
+            if (smoothScroll) {
+                setTimeout(function() {
+                    item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }, 100);
+            }
+        } else {
+            item.classList.remove("is-open");
+            btn.setAttribute("aria-expanded", "false");
+            answer.style.maxHeight = "0";
         }
+    }
+
+    /* Click handler */
+    document.addEventListener("click", function(e) {
+        var btn = e.target.closest(".tcd-faq-question");
+        if (!btn) return;
+        var item = btn.closest(".tcd-faq-item");
+        var accordion = btn.closest(".tcd-faq-accordion");
+        toggleItem(accordion, item, btn);
     });
+
+    /* Keyboard navigation (WAI-ARIA accordion pattern) */
+    document.addEventListener("keydown", function(e) {
+        var btn = e.target.closest(".tcd-faq-question");
+        if (!btn) return;
+        var accordion = btn.closest(".tcd-faq-accordion");
+        if (!accordion) return;
+        var buttons = Array.prototype.slice.call(accordion.querySelectorAll(".tcd-faq-question"));
+        var index = buttons.indexOf(btn);
+        var next = -1;
+
+        switch (e.key) {
+            case "ArrowDown": next = (index + 1) % buttons.length; break;
+            case "ArrowUp":   next = (index - 1 + buttons.length) % buttons.length; break;
+            case "Home":      next = 0; break;
+            case "End":       next = buttons.length - 1; break;
+            default: return;
+        }
+
+        e.preventDefault();
+        buttons[next].focus();
+    });
+
+    /* Set proper max-height for initially open items */
+    var openItems = document.querySelectorAll(".tcd-faq-item.is-open");
+    for (var i = 0; i < openItems.length; i++) {
+        var answer = openItems[i].querySelector(".tcd-faq-answer");
+        var inner = openItems[i].querySelector(".tcd-faq-answer-inner");
+        if (answer && inner) {
+            answer.style.maxHeight = inner.scrollHeight + "px";
+        }
+    }
 });
 ' );
     wp_enqueue_script( 'tcd-faq-accordion' );
@@ -139,11 +190,25 @@ add_action( 'wp_enqueue_scripts', 'tcd_faqw_enqueue_scripts' );
 
 
 /**
+ * Get the FAQ post type slug (filterable)
+ */
+function tcd_faqw_cpt_slug() {
+    return apply_filters( 'tcd_faqw_cpt_slug', 'faq' );
+}
+
+/**
+ * Get the FAQ taxonomy slug (filterable)
+ */
+function tcd_faqw_tax_slug() {
+    return apply_filters( 'tcd_faqw_tax_slug', 'faq-category' );
+}
+
+/**
  * Helper: query FAQs
  */
 function tcd_faqw_get_faqs( $category = '', $limit = -1 ) {
     $args = array(
-        'post_type'      => 'faq',
+        'post_type'      => tcd_faqw_cpt_slug(),
         'posts_per_page' => intval( $limit ),
         'orderby'        => 'menu_order',
         'order'          => 'ASC',
@@ -152,7 +217,7 @@ function tcd_faqw_get_faqs( $category = '', $limit = -1 ) {
 
     if ( ! empty( $category ) ) {
         $args['tax_query'] = array( array(
-            'taxonomy' => 'faq-category',
+            'taxonomy' => tcd_faqw_tax_slug(),
             'field'    => 'slug',
             'terms'    => array_map( 'sanitize_text_field', explode( ',', $category ) ),
         ) );
@@ -160,6 +225,39 @@ function tcd_faqw_get_faqs( $category = '', $limit = -1 ) {
 
     return get_posts( $args );
 }
+
+/**
+ * Get FAQ categories with transient caching
+ */
+function tcd_faqw_get_categories() {
+    $cache_key  = 'tcd_faqw_categories';
+    $categories = get_transient( $cache_key );
+
+    if ( false === $categories ) {
+        $categories = get_terms( array(
+            'taxonomy'   => tcd_faqw_tax_slug(),
+            'hide_empty' => false,
+        ) );
+        if ( is_wp_error( $categories ) ) {
+            $categories = array();
+        }
+        set_transient( $cache_key, $categories, 5 * MINUTE_IN_SECONDS );
+    }
+
+    return $categories;
+}
+
+/**
+ * Invalidate category cache when terms change
+ */
+function tcd_faqw_flush_category_cache( $term_id, $tt_id, $taxonomy ) {
+    if ( $taxonomy === tcd_faqw_tax_slug() ) {
+        delete_transient( 'tcd_faqw_categories' );
+    }
+}
+add_action( 'created_term', 'tcd_faqw_flush_category_cache', 10, 3 );
+add_action( 'edited_term', 'tcd_faqw_flush_category_cache', 10, 3 );
+add_action( 'delete_term', 'tcd_faqw_flush_category_cache', 10, 3 );
 
 
 /**
