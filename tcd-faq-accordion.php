@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TCD FAQ Accordion
  * Description: Elementor accordion widget for the FAQ custom post type. Full styling control, FAQPage schema output, zero dependencies. Built by The Creative Depot.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: The Creative Depot
  * Author URI: https://thecreativedepot.com
  * License: GPL v2 or later
