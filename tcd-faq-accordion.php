@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TCD FAQ Accordion
  * Description: Elementor accordion widget for the FAQ custom post type. Full styling control, FAQPage schema output, zero dependencies. Built by The Creative Depot.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: The Creative Depot
  * Author URI: https://thecreativedepot.com
  * License: GPL v2 or later
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TCD_FAQW_VERSION', '1.1.0' );
+define( 'TCD_FAQW_VERSION', '1.1.1' );
 define( 'TCD_FAQW_PATH', plugin_dir_path( __FILE__ ) );
 
 
@@ -47,7 +47,8 @@ add_action( 'elementor/elements/categories_registered', 'tcd_faqw_elementor_cate
 function tcd_faqw_enqueue_styles() {
     wp_register_style( 'tcd-faq-accordion', false, array(), TCD_FAQW_VERSION );
     wp_add_inline_style( 'tcd-faq-accordion', '
-.tcd-faq-accordion { max-width: 100%; }
+.tcd-faq-accordion { max-width: 100%; box-sizing: border-box; overflow: hidden; }
+.tcd-faq-accordion *, .tcd-faq-accordion *::before, .tcd-faq-accordion *::after { box-sizing: border-box; }
 .tcd-faq-item { border-bottom: 1px solid #e0e0e0; transition: background-color 0.2s ease; }
 .tcd-faq-item:last-child { border-bottom: none; }
 .tcd-faq-question {
@@ -65,7 +66,9 @@ function tcd_faqw_enqueue_styles() {
     color: inherit;
     gap: 16px;
     line-height: 1.4;
+    min-width: 0;
 }
+.tcd-faq-question-text { min-width: 0; overflow-wrap: break-word; word-break: break-word; }
 .tcd-faq-question:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
@@ -87,8 +90,10 @@ function tcd_faqw_enqueue_styles() {
     padding: 0;
 }
 .tcd-faq-item.is-open .tcd-faq-answer { padding: 0 0 20px 0; }
+.tcd-faq-answer-inner { overflow-wrap: break-word; word-break: break-word; min-width: 0; }
 .tcd-faq-answer-inner p:first-child { margin-top: 0; }
 .tcd-faq-answer-inner p:last-child { margin-bottom: 0; }
+.tcd-faq-answer-inner img, .tcd-faq-answer-inner video, .tcd-faq-answer-inner iframe, .tcd-faq-answer-inner table { max-width: 100%; height: auto; }
 .tcd-faq-category-title { margin: 0 0 8px 0; padding: 0; }
 .tcd-faq-category-group + .tcd-faq-category-group { margin-top: 32px; }
 ' );
