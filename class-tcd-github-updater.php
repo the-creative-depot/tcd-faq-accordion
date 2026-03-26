@@ -123,6 +123,9 @@ class TCD_GitHub_Updater {
                 'new_version' => $remote_version,
                 'url'         => $release['html_url'],
                 'package'     => $release['zipball_url'],
+                'icons'       => array(
+                    'default' => plugin_dir_url( $this->plugin_file ) . 'icon-256x256.png',
+                ),
             );
         }
 
@@ -165,6 +168,9 @@ class TCD_GitHub_Updater {
                 'changelog'   => nl2br( esc_html( $release['body'] ) ),
             ),
             'download_link' => $release['zipball_url'],
+            'icons'         => array(
+                'default' => plugin_dir_url( $this->plugin_file ) . 'icon-256x256.png',
+            ),
         );
     }
 
