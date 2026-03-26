@@ -34,6 +34,17 @@ add_action( 'plugins_loaded', 'tcd_faqw_init_settings' );
 
 
 /**
+ * Add Settings link to plugin action links
+ */
+function tcd_faqw_plugin_action_links( $links ) {
+    $settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=tcd-faq-accordion' ) ) . '">Settings</a>';
+    array_unshift( $links, $settings_link );
+    return $links;
+}
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'tcd_faqw_plugin_action_links' );
+
+
+/**
  * Register Elementor widget
  */
 function tcd_faqw_register_widget( $widgets_manager ) {
