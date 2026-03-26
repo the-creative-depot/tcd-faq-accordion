@@ -22,12 +22,17 @@ class TCD_GitHub_Updater {
     public function __construct( $plugin_file, $repo, $token = '' ) {
         $this->plugin_file = $plugin_file;
         $this->slug        = plugin_basename( $plugin_file );
-        $this->repo        = $repo;   // format: owner/repo-name
+        $this->repo        = $repo;
         $this->token       = $token;
 
         add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
         add_filter( 'plugins_api', array( $this, 'plugin_info' ), 20, 3 );
         add_filter( 'upgrader_post_install', array( $this, 'after_install' ), 10, 3 );
+
+        // Inject auth header into GitHub download requests
+        if ( ! empty( $this->token ) ) {
+            add_filter( 'http_request_args', array( $this, 'inject_auth_header' ), 10, 2 );
+        }
     }
 
 
@@ -80,6 +85,21 @@ class TCD_GitHub_Updater {
 
 
     /**
+     * Inject Authorization header for GitHub API and download requests
+     */
+    public function inject_auth_header( $args, $url ) {
+        if ( strpos( $url, 'api.github.com/repos/' . $this->repo ) !== false ||
+             strpos( $url, 'github.com/' . $this->repo ) !== false ||
+             strpos( $url, 'codeload.github.com/' . $this->repo ) !== false ) {
+
+            $args['headers']['Authorization'] = 'Bearer ' . $this->token;
+        }
+
+        return $args;
+    }
+
+
+    /**
      * Check for updates
      */
     public function check_update( $transient ) {
@@ -97,19 +117,12 @@ class TCD_GitHub_Updater {
         $remote_version  = ltrim( $release['tag_name'], 'vV' );
 
         if ( version_compare( $remote_version, $current_version, '>' ) ) {
-            $download_url = $release['zipball_url'];
-
-            // For private repos, append token to download URL
-            if ( ! empty( $this->token ) ) {
-                $download_url = add_query_arg( 'access_token', $this->token, $download_url );
-            }
-
             $transient->response[ $this->slug ] = (object) array(
                 'slug'        => dirname( $this->slug ),
                 'plugin'      => $this->slug,
                 'new_version' => $remote_version,
                 'url'         => $release['html_url'],
-                'package'     => $download_url,
+                'package'     => $release['zipball_url'],
             );
         }
 
