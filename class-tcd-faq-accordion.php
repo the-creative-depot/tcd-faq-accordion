@@ -197,6 +197,7 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
         $this->add_control( 'question_color_hover', array(
             'label'     => 'Hover Color',
             'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#000000',
             'selectors' => array( '{{WRAPPER}} .tcd-faq-question:hover' => 'color: {{VALUE}};' ),
         ) );
 
@@ -228,6 +229,7 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
             'label'      => 'Padding',
             'type'       => \Elementor\Controls_Manager::DIMENSIONS,
             'size_units' => array( 'px', 'em' ),
+            'default'    => array( 'top' => '20', 'right' => '20', 'bottom' => '20', 'left' => '20', 'unit' => 'px', 'isLinked' => true ),
             'selectors'  => array( '{{WRAPPER}} .tcd-faq-question' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ),
         ) );
 
@@ -267,6 +269,7 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
             'label'      => 'Padding',
             'type'       => \Elementor\Controls_Manager::DIMENSIONS,
             'size_units' => array( 'px', 'em' ),
+            'default'    => array( 'top' => '20', 'right' => '20', 'bottom' => '20', 'left' => '20', 'unit' => 'px', 'isLinked' => true ),
             'selectors'  => array( '{{WRAPPER}} .tcd-faq-answer-inner' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ),
         ) );
 
