@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TCD FAQ Accordion
  * Description: Elementor accordion widget for the FAQ custom post type. Full styling control, FAQPage schema output, zero dependencies. Built by The Creative Depot.
- * Version: 1.2.3
+ * Version: 1.3.0
  * Author: The Creative Depot
  * Author URI: https://thecreativedepot.com
  * License: GPL v2 or later
@@ -15,8 +15,22 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TCD_FAQW_VERSION', '1.2.3' );
+define( 'TCD_FAQW_VERSION', '1.3.0' );
 define( 'TCD_FAQW_PATH', plugin_dir_path( __FILE__ ) );
+
+
+/**
+ * Initialize settings page (admin only)
+ */
+function tcd_faqw_init_settings() {
+    if ( ! is_admin() ) {
+        return;
+    }
+    require_once TCD_FAQW_PATH . 'class-tcd-faq-settings.php';
+    $settings = new TCD_FAQ_Settings();
+    $settings->register();
+}
+add_action( 'plugins_loaded', 'tcd_faqw_init_settings' );
 
 
 /**
@@ -201,20 +215,31 @@ add_action( 'wp_enqueue_scripts', 'tcd_faqw_enqueue_scripts' );
  * Get the FAQ post type slug (filterable)
  */
 function tcd_faqw_cpt_slug() {
-    return apply_filters( 'tcd_faqw_cpt_slug', 'faq' );
+    $slug = get_option( 'tcd_faqw_cpt_slug', '' );
+    if ( ! empty( $slug ) ) {
+        return $slug;
+    }
+    return apply_filters( 'tcd_faqw_cpt_slug', '' );
 }
 
 /**
  * Get the FAQ taxonomy slug (filterable)
  */
 function tcd_faqw_tax_slug() {
-    return apply_filters( 'tcd_faqw_tax_slug', 'faq-category' );
+    $slug = get_option( 'tcd_faqw_tax_slug', '' );
+    if ( ! empty( $slug ) ) {
+        return $slug;
+    }
+    return apply_filters( 'tcd_faqw_tax_slug', '' );
 }
 
 /**
  * Helper: query FAQs
  */
 function tcd_faqw_get_faqs( $category = '', $limit = -1 ) {
+    if ( empty( tcd_faqw_cpt_slug() ) ) {
+        return array();
+    }
     $args = array(
         'post_type'      => tcd_faqw_cpt_slug(),
         'posts_per_page' => intval( $limit ),
@@ -238,6 +263,9 @@ function tcd_faqw_get_faqs( $category = '', $limit = -1 ) {
  * Get FAQ categories with transient caching
  */
 function tcd_faqw_get_categories() {
+    if ( empty( tcd_faqw_tax_slug() ) ) {
+        return array();
+    }
     $cache_key  = 'tcd_faqw_categories';
     $categories = get_transient( $cache_key );
 
