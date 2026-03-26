@@ -225,6 +225,10 @@ class TCD_FAQ_Settings {
      * Show admin notice when plugin is not configured
      */
     public function admin_notice() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
         $screen = get_current_screen();
         if ( $screen && $screen->id === 'settings_page_tcd-faq-accordion' ) {
             return;

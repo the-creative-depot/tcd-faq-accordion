@@ -34,6 +34,24 @@ add_action( 'plugins_loaded', 'tcd_faqw_init_settings' );
 
 
 /**
+ * Seed default options on upgrade from pre-1.3.0 (one-time migration)
+ */
+function tcd_faqw_maybe_migrate_defaults() {
+    if ( get_option( 'tcd_faqw_migrated', false ) ) {
+        return;
+    }
+    if ( false === get_option( 'tcd_faqw_cpt_slug' ) ) {
+        update_option( 'tcd_faqw_cpt_slug', 'faq' );
+    }
+    if ( false === get_option( 'tcd_faqw_tax_slug' ) ) {
+        update_option( 'tcd_faqw_tax_slug', 'faq-category' );
+    }
+    update_option( 'tcd_faqw_migrated', true );
+}
+add_action( 'admin_init', 'tcd_faqw_maybe_migrate_defaults' );
+
+
+/**
  * Add Settings link to plugin action links
  */
 function tcd_faqw_plugin_action_links( $links ) {
