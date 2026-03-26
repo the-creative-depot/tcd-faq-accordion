@@ -154,24 +154,6 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
             'selectors'  => array( '{{WRAPPER}} .tcd-faq-item' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ),
         ) );
 
-        $this->add_control( 'item_background', array(
-            'label'     => 'Background',
-            'type'      => \Elementor\Controls_Manager::COLOR,
-            'selectors' => array( '{{WRAPPER}} .tcd-faq-item' => 'background-color: {{VALUE}};' ),
-        ) );
-
-        $this->add_control( 'item_background_active', array(
-            'label'     => 'Active Background',
-            'type'      => \Elementor\Controls_Manager::COLOR,
-            'selectors' => array( '{{WRAPPER}} .tcd-faq-item.is-open' => 'background-color: {{VALUE}};' ),
-        ) );
-
-        $this->add_control( 'item_background_hover', array(
-            'label'     => 'Hover Background',
-            'type'      => \Elementor\Controls_Manager::COLOR,
-            'selectors' => array( '{{WRAPPER}} .tcd-faq-item:hover' => 'background-color: {{VALUE}};' ),
-        ) );
-
         $this->add_responsive_control( 'item_spacing', array(
             'label'      => 'Spacing Between Items',
             'type'       => \Elementor\Controls_Manager::SLIDER,
@@ -224,6 +206,24 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
             'selectors' => array( '{{WRAPPER}} .tcd-faq-item.is-open .tcd-faq-question' => 'color: {{VALUE}};' ),
         ) );
 
+        $this->add_control( 'question_background', array(
+            'label'     => 'Background',
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .tcd-faq-question' => 'background-color: {{VALUE}};' ),
+        ) );
+
+        $this->add_control( 'question_background_hover', array(
+            'label'     => 'Hover Background',
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .tcd-faq-question:hover' => 'background-color: {{VALUE}};' ),
+        ) );
+
+        $this->add_control( 'question_background_active', array(
+            'label'     => 'Active Background',
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .tcd-faq-item.is-open .tcd-faq-question' => 'background-color: {{VALUE}};' ),
+        ) );
+
         $this->add_responsive_control( 'question_padding', array(
             'label'      => 'Padding',
             'type'       => \Elementor\Controls_Manager::DIMENSIONS,
@@ -243,6 +243,12 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
         $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), array(
             'name'     => 'answer_typography',
             'selector' => '{{WRAPPER}} .tcd-faq-answer-inner',
+        ) );
+
+        $this->add_control( 'answer_background', array(
+            'label'     => 'Background',
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => array( '{{WRAPPER}} .tcd-faq-answer-inner' => 'background-color: {{VALUE}};' ),
         ) );
 
         $this->add_control( 'answer_color', array(
