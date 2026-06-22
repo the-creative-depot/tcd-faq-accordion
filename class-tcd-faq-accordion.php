@@ -551,7 +551,11 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
                 '@type'      => 'FAQPage',
                 'mainEntity' => array(),
             );
+            global $post;
+            $prev_post = $post;
             foreach ( $schema_items as $faq ) {
+                $post = $faq;
+                setup_postdata( $faq );
                 $schema['mainEntity'][] = array(
                     '@type'          => 'Question',
                     'name'           => wp_strip_all_tags( get_the_title( $faq ) ),
@@ -561,6 +565,8 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
                     ),
                 );
             }
+            $post = $prev_post;
+            wp_reset_postdata();
             echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
         }
     }
@@ -572,7 +578,13 @@ class TCD_FAQ_Accordion_Widget extends \Elementor\Widget_Base {
         $answer_id   = 'tcd-faq-answer-' . intval( $faq->ID );
         $question_id = 'tcd-faq-question-' . intval( $faq->ID );
         $max_height  = $is_open ? 'max-height:9999px;' : 'max-height:0;';
+        global $post;
+        $prev_post   = $post;
+        $post        = $faq;
+        setup_postdata( $faq );
         $answer_html = apply_filters( 'the_content', $faq->post_content );
+        $post        = $prev_post;
+        wp_reset_postdata();
 
         echo '<div class="tcd-faq-item' . esc_attr( $open_class ) . '">';
         echo '<button class="tcd-faq-question" id="' . esc_attr( $question_id ) . '" aria-expanded="' . esc_attr( $aria ) . '" aria-controls="' . esc_attr( $answer_id ) . '">';
